@@ -1,3 +1,4 @@
+// https://entgo.io/zh/docs/schema-fields
 package sql2ent
 
 import (
@@ -85,13 +86,17 @@ func parserSchema(e *parser.Table) (*Schema, error) {
 
 	var schFields []template.HTML
 	for k, v := range fields {
+		if v.IsPrimary {
+			// ent containers primary key.
+			continue
+		}
 		field := fmt.Sprintf(`field.%s("%s")`, v.FieldFuncName, k)
 
 		field += fmt.Sprintf(`.SchemaType(map[string]string{
                 dialect.MySQL:    "%s",   // Override MySQL.
             })`, v.DataTypeSource)
 
-		if v.IsAutoIncrement || v.DefaultValue.IsHas || !v.IsNotNull {
+		if !v.IsNotNull {
 			field += ".Optional()"
 		}
 

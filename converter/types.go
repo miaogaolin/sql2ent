@@ -117,7 +117,7 @@ func ConvertDefaultValue(dataType parser.DataType, val string, isHas bool) (impo
 		imports = append(imports, "time")
 	}
 	if isHas {
-		fields += fmt.Sprintf(`.Default(%s)`, defaultVal)
+		fields = fmt.Sprintf(`.Default(%s)`, defaultVal) + fields
 	}
 	return
 }
