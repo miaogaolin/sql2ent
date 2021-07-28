@@ -74,7 +74,7 @@ func Parse(sql string) (string, error) {
 
 func parserSchema(e *parser.Table) (*Schema, error) {
 
-	var imports []string
+	imports := collection.NewSet()
 	sch := &Schema{
 		TableName: strcase.ToCamel(e.Name),
 	}
@@ -86,32 +86,43 @@ func parserSchema(e *parser.Table) (*Schema, error) {
 	var schFields []template.HTML
 	for k, v := range fields {
 		field := fmt.Sprintf(`field.%s("%s")`, v.FieldFuncName, k)
-		if v.DataTypeSource != "" {
-			field += fmt.Sprintf(`.SchemaType(map[string]string{
+
+		field += fmt.Sprintf(`.SchemaType(map[string]string{
                 dialect.MySQL:    "%s",   // Override MySQL.
             })`, v.DataTypeSource)
-		}
+
 		if v.IsAutoIncrement || v.DefaultValue.IsHas || !v.IsNotNull {
 			field += ".Optional()"
 		}
 
-		if v.DefaultValue.IsHas {
-			pkgs, defaultVal := converter.ConvertDefaultValue(v.DataType, v.DefaultValue.Value)
-			imports = append(imports, pkgs...)
-			field += fmt.Sprintf(`.Default(%s)`, defaultVal)
-		}
+		pkgs, defaultVal := converter.ConvertDefaultValue(v.DataType, v.DefaultValue.Value, v.DefaultValue.IsHas)
+		addImports(imports, pkgs...)
+		field += defaultVal
+
 		if v.Comment != "" {
 			field += fmt.Sprintf(`.Comment("%s")`, v.Comment)
+		}
+
+		if v.IsUnique {
+			field += ".Unique()"
 		}
 
 		schFields = append(schFields, template.HTML(field))
 	}
 	sch.Fields = schFields
 	sch.IsHaveFields = len(schFields) > 0
+	sch.Imports = imports.KeysStr()
 	return sch, nil
 
 }
 
+func addImports(imports *collection.Set, news ...string) {
+	for _, v := range news {
+		if !imports.Contains(v) {
+			imports.AddStr(v)
+		}
+	}
+}
 func parserFields(e *parser.Table) (map[string]*Field, error) {
 	primaryKey := ""
 	primaryKeys := collection.NewSet()
@@ -190,6 +201,7 @@ func convertColumns(columns []*parser.Column, primaryColumn string) (map[string]
 		field.DefaultValue = column.Constraint.DefaultValue
 		field.DataTypeSource = column.DataTypeSource
 		field.DataType = column.DataType
+		field.IsUnique = isUnique
 
 		fieldM[field.Name.Source()] = &field
 	}

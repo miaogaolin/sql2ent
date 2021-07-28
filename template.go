@@ -4,16 +4,19 @@ const TemplateSchema = `package schema
 
 import (
     "entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
 	
-	{{ range .Imports }} "{.}" {{ end }}
+	{{ range .Imports }} "{{ . }}" {{ end }}
 	
 )
 
-type {{ .TableName}} struct {
+// {{ .TableName }} holds the schema definition for the {{ .TableName }} entity.
+type {{ .TableName }} struct {
     ent.Schema
 }
 
+// Fields of the {{ .TableName }}.
 func ({{ .TableName}}) Fields() []ent.Field {
 	{{ if .IsHaveFields }}
     return []ent.Field{
@@ -24,6 +27,7 @@ func ({{ .TableName}}) Fields() []ent.Field {
 	{{ end }}
 }
 
+// Edges of the {{ .TableName }}.
 func ({{ .TableName}}) Edges() []ent.Edge {
 	return nil
 }`
