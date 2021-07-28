@@ -129,12 +129,6 @@ github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Ky
 github.com/mattn/go-runewidth v0.0.9/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
 github.com/mattn/go-sqlite3 v1.9.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/miaogaolin/ddlparser v0.0.0-20210728032655-25e03b2ece49 h1:ClkUyeIGDO3WJq+CfIKs29U8YdAW7F/h62qVbjU3tkY=
-github.com/miaogaolin/ddlparser v0.0.0-20210728032655-25e03b2ece49/go.mod h1:Q7mjo2PQnxBxTJiH3O2/fHgb59GTuP2q7l+LHAyU+74=
-github.com/miaogaolin/ddlparser v0.0.0-20210728065034-0646067fba10 h1:Q2IN44h4FnlHCy3S44fWLRAt/ehG4OrqxMpqS47upEA=
-github.com/miaogaolin/ddlparser v0.0.0-20210728065034-0646067fba10/go.mod h1:Q7mjo2PQnxBxTJiH3O2/fHgb59GTuP2q7l+LHAyU+74=
-github.com/miaogaolin/ddlparser v0.0.0-20210728104018-d2ae4ee718dd h1:ROGIg3lrySmi+W49S0N1aneCYTDx+MwotwWFtvojtCI=
-github.com/miaogaolin/ddlparser v0.0.0-20210728104018-d2ae4ee718dd/go.mod h1:Q7mjo2PQnxBxTJiH3O2/fHgb59GTuP2q7l+LHAyU+74=
 github.com/miaogaolin/ddlparser v0.0.0-20210728105518-cbfc6cb1225e h1:m0oGMy44P5B+FA5uZ6w6oDm8tsjn8dOBFgHs9QOuQrk=
 github.com/miaogaolin/ddlparser v0.0.0-20210728105518-cbfc6cb1225e/go.mod h1:Q7mjo2PQnxBxTJiH3O2/fHgb59GTuP2q7l+LHAyU+74=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=

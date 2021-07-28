@@ -59,7 +59,7 @@ func ConvertField(dataBaseType int) (string, error) {
 	return tp, nil
 }
 
-func ConvertDefaultValue(dataType parser.DataType, val string) string {
+func ConvertDefaultValue(dataType parser.DataType, val string) (imports []string, col string) {
 	switch dataType.Type() {
 	case parser.Bool,
 		parser.Boolean,
@@ -80,7 +80,7 @@ func ConvertDefaultValue(dataType parser.DataType, val string) string {
 		parser.Float8,
 		parser.Double,
 		parser.Decimal:
-		return val
+		return nil, val
 	case parser.Date,
 		parser.DateTime,
 		parser.Time,
@@ -88,7 +88,8 @@ func ConvertDefaultValue(dataType parser.DataType, val string) string {
 
 	case parser.Timestamp:
 		if strings.Contains(val, "CURRENT_TIMESTAMP") {
-			return "time.Now"
+			imports = append(imports, "time")
+			return imports, "time.Now"
 		}
 	case parser.Char,
 		parser.VarChar,
@@ -101,7 +102,7 @@ func ConvertDefaultValue(dataType parser.DataType, val string) string {
 		parser.Enum,
 		parser.Set,
 		parser.Json:
-		return `"` + val + `"`
+		return nil, `"` + val + `"`
 	}
-	return ""
+	return
 }

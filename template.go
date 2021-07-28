@@ -5,6 +5,9 @@ const TemplateSchema = `package schema
 import (
     "entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	
+	{{ range .Imports }} "{.}" {{ end }}
+	
 )
 
 type {{ .TableName}} struct {
