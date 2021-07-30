@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"go/format"
 	"html/template"
+	"strings"
 
 	"github.com/miaogaolin/sql2ent/utils"
 
@@ -95,6 +96,10 @@ func parserSchema(e *parser.Table) (*Schema, error) {
 		field += fmt.Sprintf(`.SchemaType(map[string]string{
                 dialect.MySQL:    "%s",   // Override MySQL.
             })`, v.DataTypeSource)
+
+		if strings.Contains(v.DataTypeSource, "UNSIGNED") {
+			field += ".NonNegative()"
+		}
 
 		if !v.IsNotNull {
 			field += ".Optional()"
