@@ -1,3 +1,4 @@
+// https://entgo.io/zh/docs/schema-fields
 package sql2ent
 
 import (
@@ -23,12 +24,14 @@ type (
 		TableName    string
 		Fields       []template.HTML
 		IsHaveFields bool
+		Imports      []string
 	}
 
 	// Field describes a table field
 	Field struct {
 		Name            stringx.String
 		IsPrimary       bool
+		IsUnique        bool
 		IsAutoIncrement bool
 		IsNotNull       bool
 		DefaultValue    parser.DefaultValue
@@ -71,6 +74,8 @@ func Parse(sql string) (string, error) {
 }
 
 func parserSchema(e *parser.Table) (*Schema, error) {
+
+	imports := collection.NewSet()
 	sch := &Schema{
 		TableName: strcase.ToCamel(e.Name),
 	}
@@ -81,32 +86,48 @@ func parserSchema(e *parser.Table) (*Schema, error) {
 
 	var schFields []template.HTML
 	for k, v := range fields {
+		if v.IsPrimary {
+			// ent containers primary key.
+			continue
+		}
 		field := fmt.Sprintf(`field.%s("%s")`, v.FieldFuncName, k)
-		if v.DataTypeSource != "" {
-			field += fmt.Sprintf(`.SchemaType(map[string]string{
+
+		field += fmt.Sprintf(`.SchemaType(map[string]string{
                 dialect.MySQL:    "%s",   // Override MySQL.
             })`, v.DataTypeSource)
-		}
-		if v.IsAutoIncrement || v.DefaultValue.IsHas || !v.IsNotNull {
+
+		if !v.IsNotNull {
 			field += ".Optional()"
 		}
 
-		if v.DefaultValue.IsHas {
-			defaultVal := converter.ConvertDefaultValue(v.DataType, v.DefaultValue.Value)
-			field += fmt.Sprintf(`.Default(%s)`, defaultVal)
-		}
+		pkgs, defaultVal := converter.ConvertDefaultValue(v.DataType, v.DefaultValue.Value, v.DefaultValue.IsHas)
+		addImports(imports, pkgs...)
+		field += defaultVal
+
 		if v.Comment != "" {
 			field += fmt.Sprintf(`.Comment("%s")`, v.Comment)
+		}
+
+		if v.IsUnique {
+			field += ".Unique()"
 		}
 
 		schFields = append(schFields, template.HTML(field))
 	}
 	sch.Fields = schFields
 	sch.IsHaveFields = len(schFields) > 0
+	sch.Imports = imports.KeysStr()
 	return sch, nil
 
 }
 
+func addImports(imports *collection.Set, news ...string) {
+	for _, v := range news {
+		if !imports.Contains(v) {
+			imports.AddStr(v)
+		}
+	}
+}
 func parserFields(e *parser.Table) (map[string]*Field, error) {
 	primaryKey := ""
 	primaryKeys := collection.NewSet()
@@ -151,6 +172,7 @@ func convertColumns(columns []*parser.Column, primaryColumn string) (map[string]
 			isPrimary       bool
 			isAutoIncrement bool
 			isNotNull       bool
+			isUnique        bool
 		)
 		if column.Constraint != nil {
 			comment = column.Constraint.Comment
@@ -165,6 +187,8 @@ func convertColumns(columns []*parser.Column, primaryColumn string) (map[string]
 			if column.Constraint.NotNull {
 				isNotNull = true
 			}
+
+			isUnique = column.Constraint.Unique
 		}
 
 		fieldFuncName, err := converter.ConvertField(column.DataType.Type())
@@ -182,6 +206,7 @@ func convertColumns(columns []*parser.Column, primaryColumn string) (map[string]
 		field.DefaultValue = column.Constraint.DefaultValue
 		field.DataTypeSource = column.DataTypeSource
 		field.DataType = column.DataType
+		field.IsUnique = isUnique
 
 		fieldM[field.Name.Source()] = &field
 	}

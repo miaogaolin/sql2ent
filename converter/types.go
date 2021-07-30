@@ -59,7 +59,9 @@ func ConvertField(dataBaseType int) (string, error) {
 	return tp, nil
 }
 
-func ConvertDefaultValue(dataType parser.DataType, val string) string {
+func ConvertDefaultValue(dataType parser.DataType, val string, isHas bool) (imports []string, fields string) {
+	defaultVal := ""
+	isTime := false
 	switch dataType.Type() {
 	case parser.Bool,
 		parser.Boolean,
@@ -80,16 +82,25 @@ func ConvertDefaultValue(dataType parser.DataType, val string) string {
 		parser.Float8,
 		parser.Double,
 		parser.Decimal:
-		return val
+		defaultVal = val
+
 	case parser.Date,
 		parser.DateTime,
 		parser.Time,
-		parser.Year:
-
-	case parser.Timestamp:
-		if strings.Contains(val, "CURRENT_TIMESTAMP") {
-			return "time.Now"
+		parser.Year,
+		parser.Timestamp:
+		if isHas && strings.HasPrefix(val, "CURRENT_TIMESTAMP") {
+			isTime = true
+			defaultVal = "time.Now"
 		}
+		if strings.Contains(val, "ONUPDATECURRENT_TIMESTAMP") {
+			isTime = true
+			fields += ".UpdateDefault(time.Now)"
+		}
+	case parser.Enum:
+		defaultVal = `"` + val + `"`
+		fields += fmt.Sprintf(`.Values("%s")`, strings.Join(dataType.Value(), `","`))
+
 	case parser.Char,
 		parser.VarChar,
 		parser.Binary,
@@ -98,10 +109,15 @@ func ConvertDefaultValue(dataType parser.DataType, val string) string {
 		parser.Text,
 		parser.MediumText,
 		parser.LongText,
-		parser.Enum,
 		parser.Set,
 		parser.Json:
-		return `"` + val + `"`
+		defaultVal = `"` + val + `"`
 	}
-	return ""
+	if isTime {
+		imports = append(imports, "time")
+	}
+	if isHas {
+		fields = fmt.Sprintf(`.Default(%s)`, defaultVal) + fields
+	}
+	return
 }
