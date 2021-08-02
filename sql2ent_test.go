@@ -1,4 +1,4 @@
-package sql2ent
+package main
 
 import (
 	"testing"
