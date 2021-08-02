@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/miaogaolin/sql2ent/util"
@@ -28,7 +27,6 @@ func MysqlDDL(cli *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(files)
 
 	if len(files) == 0 {
 		return errors.New("sql not matched")
@@ -37,7 +35,6 @@ func MysqlDDL(cli *cli.Context) error {
 	g := gen.NewMysqlGenerator(dir)
 
 	for _, f := range files {
-		fmt.Println(f)
 		err := g.FromFile(f)
 		if err != nil {
 			return err
