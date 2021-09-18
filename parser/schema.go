@@ -54,12 +54,8 @@ func ParseSchema(e *parser.Table) (*Schema, error) {
 	}
 
 	var schFields []template.HTML
-	for k, v := range fields {
-		if v.IsPrimary {
-			// ent containers primary key.
-			continue
-		}
-		field := fmt.Sprintf(`field.%s("%s")`, v.FieldFuncName, k)
+	for _, v := range fields {
+		field := fmt.Sprintf(`field.%s("%s")`, v.FieldFuncName, v.Name.Source())
 
 		field += fmt.Sprintf(`.SchemaType(map[string]string{
                 dialect.MySQL:    "%s",   // Override MySQL.
@@ -81,7 +77,7 @@ func ParseSchema(e *parser.Table) (*Schema, error) {
 			field += fmt.Sprintf(`.Comment("%s")`, v.Comment)
 		}
 
-		if v.IsUnique {
+		if v.IsUnique || v.IsPrimary {
 			field += ".Unique()"
 		}
 
@@ -101,7 +97,7 @@ func addImports(imports *collection.Set, news ...string) {
 		}
 	}
 }
-func parserFields(e *parser.Table) (map[string]*Field, error) {
+func parserFields(e *parser.Table) ([]Field, error) {
 	primaryKey := ""
 	primaryKeys := collection.NewSet()
 	for _, e := range e.Constraints {
@@ -132,8 +128,8 @@ func parserFields(e *parser.Table) (map[string]*Field, error) {
 	return fields, err
 }
 
-func convertColumns(columns []*parser.Column, primaryColumn string) (map[string]*Field, error) {
-	var fieldM = make(map[string]*Field)
+func convertColumns(columns []*parser.Column, primaryColumn string) ([]Field, error) {
+	var fields []Field
 
 	for _, column := range columns {
 		if column == nil {
@@ -181,7 +177,7 @@ func convertColumns(columns []*parser.Column, primaryColumn string) (map[string]
 		field.DataType = column.DataType
 		field.IsUnique = isUnique
 
-		fieldM[field.Name.Source()] = &field
+		fields = append(fields, field)
 	}
-	return fieldM, nil
+	return fields, nil
 }
