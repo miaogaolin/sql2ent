@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/miaogaolin/sql2ent"
+	sql2ent "github.com/miaogaolin/sql2ent/parser"
 )
 
 func main() {

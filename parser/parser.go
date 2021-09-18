@@ -1,10 +1,8 @@
 // https://entgo.io/zh/docs/schema-fields
-package main
+package parser
 
 import (
 	"errors"
-
-	"github.com/miaogaolin/sql2ent/parser"
 
 	ddlParser "github.com/miaogaolin/ddlparser/parser"
 )
@@ -20,10 +18,10 @@ func Parse(sql string) (string, error) {
 		return "", errors.New("only supports one table")
 	}
 
-	sch, err := parser.ParseSchema(tables[0])
+	sch, err := ParseSchema(tables[0])
 	if err != nil {
 		return "", err
 	}
 
-	return parser.ParseTpl(sch)
+	return ParseTpl(sch)
 }
