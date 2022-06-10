@@ -36,6 +36,3 @@ sql2ent mysql ddl -src "./sql/*.sql" -dir "./ent/schema"
 1. 点击 Fork
 2. 提交自己的代码到 Fork 的仓库中
 3. Pull Request 将自己的代码合并
-
-## 联系我
-![](./Wechat.jpeg)
