@@ -47,6 +47,7 @@ var fieldMap = map[int]string{
 	parser.Enum:       "Enum",
 	parser.Set:        "String",
 	parser.Json:       "String",
+	parser.Blob:       "string",
 }
 
 // ConvertDataType converts column type into ent function
