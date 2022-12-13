@@ -18,7 +18,11 @@
 
 ### 第一步：安装 `sql2ent`
 ```shell
-go get -u github.com/miaogaolin/sql2ent
+# Go 1.15 或更低版本
+go get -u github.com/miaogaolin/excel-proc
+
+# Go 1.16 或更高版本
+go install github.com/miaogaolin/excel-proc@latest
 ```
 
 ### 第二步：运行命令
